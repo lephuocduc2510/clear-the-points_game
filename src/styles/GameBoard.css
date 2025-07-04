@@ -125,6 +125,14 @@
   box-shadow: 0 5px 15px rgba(240, 147, 251, 0.4);
 }
 
+.autoplay-btn.stop {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.autoplay-btn.stop:hover:not(:disabled) {
+    box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+}
+
 .restart-btn:disabled, .autoplay-btn:disabled {
   background: #cccccc;
   cursor: not-allowed;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTimer } from '../hooks/useTimer';
 import { generateCircles } from '../utils/generateCircles.js';
 import Circle from './Circle.jsx';
@@ -14,10 +14,15 @@ const GameBoard = () => {
     const [gameFailed, setGameFailed] = useState(false);
     const [gameStarted, setGameStarted] = useState(false);
     const [nextExpectedNumber, setNextExpectedNumber] = useState(1);
+    const autoPlayRef = useRef(false);
 
     useEffect(() => {
         initializeGame();
     }, []);
+
+    useEffect(() => {
+        autoPlayRef.current = isAutoPlaying;
+    }, [isAutoPlaying]);
 
     useEffect(() => {
         const remainingCircles = circles.filter(circle => circle.visible).length;
@@ -93,27 +98,57 @@ const GameBoard = () => {
     };
 
     const handleAutoPlay = () => {
-        if (isAutoPlaying || !gameStarted) return;
+        if (!gameStarted) return;
+
+        if (isAutoPlaying) {
+            // Dừng auto play
+            setIsAutoPlaying(false);
+            setNotification('Auto play stopped. Continue playing manually!');
+            setTimeout(() => setNotification(''), 2000);
+            return;
+        }
 
         setIsAutoPlaying(true);
         setNotification('Auto play started! Watch the correct sequence...');
 
-        const visibleCircles = circles.filter(circle => circle.visible).sort((a, b) => a.id - b.id);
 
-        visibleCircles.forEach((circle, index) => {
-            setTimeout(() => {
-                setCircles(prevCircles =>
-                    prevCircles.map(c =>
-                        c.id === circle.id ? { ...c, visible: false } : c
-                    )
-                );
-                setNextExpectedNumber(circle.id + 1);
-            }, (index + 1) * 500);
-        });
+        const visibleCircles = circles.filter(circle => circle.visible)
+            .sort((a, b) => a.id - b.id)
+            .filter(circle => circle.id >= nextExpectedNumber);
+
+        let autoPlayIndex = 0;
+
+        const playNext = () => {
+            if (!autoPlayRef.current || autoPlayIndex >= visibleCircles.length) {
+                setIsAutoPlaying(false);
+                return;
+            }
+
+            const circle = visibleCircles[autoPlayIndex];
+
+            setCircles(prevCircles =>
+                prevCircles.map(c =>
+                    c.id === circle.id ? { ...c, visible: false } : c
+                )
+            );
+            setNextExpectedNumber(circle.id + 1);
+
+            autoPlayIndex++;
+
+            if (autoPlayIndex < visibleCircles.length) {
+                setTimeout(playNext, 500);
+            } else {
+                setIsAutoPlaying(false);
+            }
+        };
+
+        setTimeout(playNext, 500);
 
         setTimeout(() => {
-            setNotification('');
-        }, visibleCircles.length * 500 + 1000);
+            if (notification.includes('Auto play started')) {
+                setNotification('');
+            }
+        }, 2000);
     };
 
     const visibleCircles = circles.filter(circle => circle.visible);
@@ -153,11 +188,11 @@ const GameBoard = () => {
 
                     {gameStarted && !gameCompleted && !gameFailed && (
                         <button
-                            className="autoplay-btn"
+                            className={`autoplay-btn ${isAutoPlaying ? 'stop' : ''}`}
                             onClick={handleAutoPlay}
-                            disabled={isAutoPlaying || totalPoints === 0}
+                            disabled={totalPoints === 0}
                         >
-                            {isAutoPlaying ? 'Auto Playing...' : 'Auto Play'}
+                            {isAutoPlaying ? 'Stop Auto Play' : 'Auto Play'}
                         </button>
                     )}
                 </div>
