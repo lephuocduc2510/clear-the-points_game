@@ -16,6 +16,15 @@ const GameBoard = () => {
     const [nextExpectedNumber, setNextExpectedNumber] = useState(1);
     const [fadingCircles, setFadingCircles] = useState(new Set());
     const autoPlayRef = useRef(false);
+    const timeoutRefs = useRef([]);
+
+
+    const clearAllTimeouts = () => {
+        timeoutRefs.current.forEach(timeoutId => {
+            clearTimeout(timeoutId);
+        });
+        timeoutRefs.current = [];
+    };
 
     useEffect(() => {
         initializeGame();
@@ -35,7 +44,7 @@ const GameBoard = () => {
     }, [circles, stopTimer]);
 
     const initializeGame = () => {
-        const newCircles = generateCircles();
+        const newCircles = generateCircles(numberOfPoints);
         setCircles(newCircles);
         setGameCompleted(false);
         setGameFailed(false);
@@ -55,7 +64,9 @@ const GameBoard = () => {
             setNotification('Game started! Click numbers in order from 1 to ' + numberOfPoints);
             setTimeout(() => setNotification(''), 3000);
         } else {
-            // Replay
+
+            clearAllTimeouts();
+            setFadingCircles(new Set());
             initializeGame();
         }
     };
@@ -71,7 +82,7 @@ const GameBoard = () => {
 
         setFadingCircles(prev => new Set([...prev, id]));
 
-        setTimeout(() => {
+        const timeoutId = setTimeout(() => {
             setCircles(prevCircles =>
                 prevCircles.map(circle =>
                     circle.id === id ? { ...circle, visible: false } : circle
@@ -83,8 +94,7 @@ const GameBoard = () => {
                 return newSet;
             });
         }, 2500);
-
-
+        timeoutRefs.current.push(timeoutId);
         setNextExpectedNumber(prev => prev + 1);
         setTimeout(() => setNotification(''), 2000);
     };
@@ -92,9 +102,11 @@ const GameBoard = () => {
 
     const handleNumberOfPointsChange = (e) => {
         const value = parseInt(e.target.value);
-        if (value >= 1 && value <= 100) {
+        if (value >= 1 && value <= 1000) {
             setNumberOfPoints(value);
-            // Tự động reset game với số điểm mới
+            clearAllTimeouts();
+            setFadingCircles(new Set());
+        
             const newCircles = generateCircles(value);
             setCircles(newCircles);
             setGameCompleted(false);
@@ -142,7 +154,7 @@ const GameBoard = () => {
             setFadingCircles(prev => new Set([...prev, circle.id]));
 
             // Sau 2.5s thì ẩn hoàn toàn
-            setTimeout(() => {
+            const timeoutId = setTimeout(() => {
                 setCircles(prevCircles =>
                     prevCircles.map(c =>
                         c.id === circle.id ? { ...c, visible: false } : c
@@ -155,6 +167,7 @@ const GameBoard = () => {
                 });
             }, 2500);
 
+            timeoutRefs.current.push(timeoutId);
             setNextExpectedNumber(circle.id + 1);
             autoPlayIndex++;
             if (autoPlayIndex < visibleCircles.length && autoPlayRef.current) {
@@ -189,14 +202,14 @@ const GameBoard = () => {
                         id="points-input"
                         type="number"
                         min="1"
-                        max="100"
+                        max="1000"
                         value={numberOfPoints}
                         onChange={handleNumberOfPointsChange}
                         disabled={isAutoPlaying}
                     />
                 </div>
 
-                <span className="input-hint">(1-100)</span>
+                <span className="input-hint">(1-1000)</span>
 
                 <div className="action-buttons">
                     <button
