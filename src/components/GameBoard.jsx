@@ -11,6 +11,9 @@ const GameBoard = () => {
     const [isAutoPlaying, setIsAutoPlaying] = useState(false);
     const { time, startTimer, stopTimer, resetTimer } = useTimer();
     const [notification, setNotification] = useState('');
+    const [gameFailed, setGameFailed] = useState(false);
+    const [gameStarted, setGameStarted] = useState(false);
+    const [nextExpectedNumber, setNextExpectedNumber] = useState(1);
 
     useEffect(() => {
         initializeGame();
@@ -26,42 +29,69 @@ const GameBoard = () => {
     }, [circles, stopTimer]);
 
     const initializeGame = () => {
-        setNotification('Generating game...');
         const newCircles = generateCircles();
         setCircles(newCircles);
         setGameCompleted(false);
+        setGameFailed(false);
+        setGameStarted(false);
         setIsAutoPlaying(false);
+        setNextExpectedNumber(1);
+        setNotification('Click PLAY to start the game!');
         resetTimer();
-        startTimer();
-        setNotification(`Game started with ${numberOfPoints} points!`);
+        setTimeout(() => setNotification(''), 3000);
+
+    };
+
+    const handlePlay = () => {
+        if (!gameStarted) {
+            setGameStarted(true);
+            startTimer();
+            setNotification('Game started! Click numbers in order from 1 to ' + numberOfPoints);
+            setTimeout(() => setNotification(''), 3000);
+        } else {
+            // Replay
+            initializeGame();
+        }
     };
 
     const handleCircleClick = (id) => {
-        if (isAutoPlaying) return;
+        if (isAutoPlaying || !gameStarted || gameCompleted || gameFailed) return;
+        if (id !== nextExpectedNumber) {
+            setGameFailed(true);
+            stopTimer();
+            setNotification(`❌ Game Failed! Expected ${nextExpectedNumber} but clicked ${id}. Click REPLAY to try again.`);
+            return;
+        }
+
         setCircles(prevCircles =>
             prevCircles.map(circle =>
                 circle.id === id ? { ...circle, visible: false } : circle
             )
         );
+
+        setNextExpectedNumber(prev => prev + 1);
+        setTimeout(() => setNotification(''), 2000);
     };
 
-    const handleRestart = () => {
-        setIsAutoPlaying(false);
-        initializeGame();
-    };
 
     const handleNumberOfPointsChange = (e) => {
         const value = parseInt(e.target.value);
         if (value >= 1 && value <= 100) {
             setNumberOfPoints(value);
+            if (!gameStarted) {
+                setNotification(`Number of points set to ${value}. Click PLAY to start!`);
+                setTimeout(() => setNotification(''), 2000);
+            }
         }
     };
 
     const handleAutoPlay = () => {
-        if (isAutoPlaying) return;
+        if (isAutoPlaying || !gameStarted) return;
 
         setIsAutoPlaying(true);
-        const visibleCircles = circles.filter(circle => circle.visible);
+        setNotification('Auto play started! Watch the correct sequence...');
+
+        const visibleCircles = circles.filter(circle => circle.visible).sort((a, b) => a.id - b.id);
 
         visibleCircles.forEach((circle, index) => {
             setTimeout(() => {
@@ -70,8 +100,13 @@ const GameBoard = () => {
                         c.id === circle.id ? { ...c, visible: false } : c
                     )
                 );
-            }, (index + 1) * 500); // Delay 500ms giữa mỗi click
+                setNextExpectedNumber(circle.id + 1);
+            }, (index + 1) * 500);
         });
+
+        setTimeout(() => {
+            setNotification('');
+        }, visibleCircles.length * 500 + 1000);
     };
 
     const visibleCircles = circles.filter(circle => circle.visible);
@@ -79,7 +114,7 @@ const GameBoard = () => {
 
     return (
         <div className="game-board-container">
-                 {notification && (
+            {notification && (
                 <div className="notification-bar">
                     <span className="notification-text">{notification}</span>
                 </div>
@@ -98,24 +133,26 @@ const GameBoard = () => {
                     />
                 </div>
 
-                 <span className="input-hint">(1-100)</span>
+                <span className="input-hint">(1-100)</span>
 
                 <div className="action-buttons">
                     <button
-                        className="restart-btn"
-                        onClick={handleRestart}
+                        className="play-btn"
+                        onClick={handlePlay}
                         disabled={isAutoPlaying}
                     >
-                        {isAutoPlaying ? 'Auto Playing...' : 'Restart'}
+                        {!gameStarted ? 'PLAY' : 'REPLAY'}
                     </button>
 
-                    <button
-                        className="autoplay-btn"
-                        onClick={handleAutoPlay}
-                        disabled={isAutoPlaying || gameCompleted || totalPoints === 0}
-                    >
-                        {isAutoPlaying ? 'Auto Playing...' : 'Auto Play'}
-                    </button>
+                    {gameStarted && !gameCompleted && !gameFailed && (
+                        <button
+                            className="autoplay-btn"
+                            onClick={handleAutoPlay}
+                            disabled={isAutoPlaying || totalPoints === 0}
+                        >
+                            {isAutoPlaying ? 'Auto Playing...' : 'Auto Play'}
+                        </button>
+                    )}
                 </div>
             </div>
             <div className="game-stats">
@@ -127,9 +164,12 @@ const GameBoard = () => {
                     <span className="stat-label">Time:</span>
                     <span className="stat-value">{time}s</span>
                 </div>
-                <button className="restart-btn" onClick={handleRestart}>
-                    Restart
-                </button>
+
+                <div className="stat-item">
+                    <span className="stat-label">Next:</span>
+                    <span className="stat-value">{gameStarted && !gameCompleted && !gameFailed ? nextExpectedNumber : '-'}</span>
+                </div>
+
             </div>
 
             <div className="game-board">
@@ -140,6 +180,18 @@ const GameBoard = () => {
                             <p>Completed in {time} seconds!</p>
                             <button className="play-again-btn" onClick={handleRestart}>
                                 Play Again
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {gameFailed && (
+                    <div className="all-cleared-overlay">
+                        <div className="all-cleared-message failed">
+                            <h2>❌ GAME FAILED! ❌</h2>
+                            <p>Wrong sequence! Expected {nextExpectedNumber}</p>
+                            <button className="play-again-btn" onClick={handlePlay}>
+                                Try Again
                             </button>
                         </div>
                     </div>
@@ -156,7 +208,8 @@ const GameBoard = () => {
                                 key={circle.id}
                                 circle={circle}
                                 onClick={handleCircleClick}
-                                disabled={isAutoPlaying}
+                                disabled={isAutoPlaying || !gameStarted || gameCompleted || gameFailed}
+                                isNextExpected={circle.id === nextExpectedNumber && gameStarted && !gameCompleted && !gameFailed}d
                             />
                         ))}
                     </div>

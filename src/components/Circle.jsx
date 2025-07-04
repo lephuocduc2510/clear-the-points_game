@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/Circle.css';
 
-const Circle = ({ circle, onClick, disabled = false }) => {
+const Circle = ({ circle, onClick, disabled = false, isNextExpected = false }) => {
     if (!circle.visible) return null;
 
     const handleClick = () => {
@@ -11,7 +11,7 @@ const Circle = ({ circle, onClick, disabled = false }) => {
     };
     return (
         <div
-            className={`circle ${disabled ? 'disabled' : ''}`}
+            className={`circle ${disabled ? 'disabled' : ''} ${isNextExpected ? 'next-expected' : ''}`}
             style={{
                 width: `${circle.size || 50}px`,
                 height: `${circle.size || 50}px`,

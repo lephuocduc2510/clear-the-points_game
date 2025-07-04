@@ -5,6 +5,44 @@
   font-family: 'Arial', sans-serif;
 }
 
+.notification-bar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  animation: slideDown 0.3s ease-out;
+}
+
+.notification-bar.error {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.play-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    color: white;
+}
+
+.all-cleared-message.failed {
+    background: #ffebee;
+    border: 2px solid #e74c3c;
+}
+
+.all-cleared-message.failed h2 {
+    color: #e74c3c;
+}
+
 .game-controls {
   display: flex;
   justify-content: space-between;
