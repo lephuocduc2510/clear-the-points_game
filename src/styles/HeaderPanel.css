@@ -1,0 +1,75 @@
+.header-panel {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 25px;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.instructions {
+  flex: 1;
+  text-align: left;
+  min-width: 300px;
+}
+
+.instructions h3 {
+  color: #FFD700;
+  margin-bottom: 10px;
+  font-size: 1.4rem;
+}
+
+.instructions p {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 5px;
+  font-size: 1rem;
+}
+
+.game-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 200px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 15px;
+  border-radius: 8px;
+}
+
+.info-label {
+  font-weight: bold;
+  color: #FFD700;
+}
+
+.info-text {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .instructions {
+    text-align: center;
+    min-width: auto;
+  }
+  
+  .game-info {
+    width: 100%;
+  }
+}

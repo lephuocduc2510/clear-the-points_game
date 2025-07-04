@@ -1,0 +1,113 @@
+.circle {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(5px);
+  user-select: none;
+  animation: floatIn 0.6s ease-out;
+}
+
+.circle:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.circle:active {
+  transform: translate(-50%, -50%) scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+.circle-number {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+@keyframes floatIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5) rotate(180deg);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1.1) rotate(90deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+  }
+}
+
+/* Different sizes for variety */
+.circle:nth-child(odd) {
+  width: 55px;
+  height: 55px;
+}
+
+.circle:nth-child(3n) {
+  width: 45px;
+  height: 45px;
+}
+
+.circle:nth-child(5n) {
+  width: 60px;
+  height: 60px;
+}
+
+/* Click animation */
+.circle.clicked {
+  animation: disappear 0.5s ease-out forwards;
+}
+
+@keyframes disappear {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(1.2) rotate(180deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0) rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .circle {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .circle:nth-child(odd) {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .circle:nth-child(3n) {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .circle:nth-child(5n) {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .circle-number {
+    font-size: 1rem;
+  }
+}
