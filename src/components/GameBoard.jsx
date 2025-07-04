@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTimer } from '../hooks/useTimer';
-import { generateCircles } from '../utils/generateCircles';
+import { generateCircles } from '../utils/generateCircles.js';
 import Circle from './Circle.jsx';
 import '../styles/GameBoard.css';
 
