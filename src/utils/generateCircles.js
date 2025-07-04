@@ -21,8 +21,14 @@ export const generateCircles = (count = 10) => {
 
     // Tạo vị trí ngẫu nhiên cho các điểm
     const generateRandomPosition = (existingPositions, attempts = 0) => {
-        if (attempts >= 500) {
-            return generateGridPosition(existingPositions.length, count);
+        const maxAttempts = count > 50 ? 100 : 500; // Giảm attempts cho số lượng lớn
+
+        if (attempts >= maxAttempts) {
+            // Fallback: vị trí hoàn toàn random
+            return {
+                x: Math.random() * 70 + 15,
+                y: Math.random() * 70 + 15
+            };
         }
 
         const margin = 15;
@@ -31,7 +37,9 @@ export const generateCircles = (count = 10) => {
             y: Math.random() * (100 - 2 * margin) + margin
         };
 
-        const minDistancePercent = (minDistance / 500) * 100;
+        // Giảm khoảng cách tối thiểu cho số lượng lớn
+        const adjustedMinDistance = count > 50 ? minDistance * 0.6 : minDistance;
+        const minDistancePercent = (adjustedMinDistance / 500) * 100;
 
         const isValidPosition = existingPositions.every(pos => {
             const distance = Math.sqrt(
@@ -47,33 +55,13 @@ export const generateCircles = (count = 10) => {
         return generateRandomPosition(existingPositions, attempts + 1);
     };
 
-    const generateGridPosition = (index, total) => {
-        const cols = Math.ceil(Math.sqrt(total));
-        const rows = Math.ceil(total / cols);
 
-        const col = index % cols;
-        const row = Math.floor(index / cols);
-
-        const marginX = 15;
-        const marginY = 15;
-        const stepX = (100 - 2 * marginX) / (cols - 1 || 1);
-        const stepY = (100 - 2 * marginY) / (rows - 1 || 1);
-
-        const randomOffsetX = (Math.random() - 0.5) * stepX * 0.3;
-        const randomOffsetY = (Math.random() - 0.5) * stepY * 0.3;
-
-        return {
-            x: Math.max(marginX, Math.min(100 - marginX, marginX + col * stepX + randomOffsetX)),
-            y: Math.max(marginY, Math.min(100 - marginY, marginY + row * stepY + randomOffsetY))
-        };
-    };
 
     const positions = [];
 
     for (let i = 0; i < count; i++) {
-        const position = count > 60 ?
-            generateGridPosition(i, count) :
-            generateRandomPosition(positions);
+        // Luôn dùng random positioning thay vì grid
+        const position = generateRandomPosition(positions);
         positions.push(position);
 
         circles.push({

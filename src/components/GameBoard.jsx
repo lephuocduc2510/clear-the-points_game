@@ -78,10 +78,17 @@ const GameBoard = () => {
         const value = parseInt(e.target.value);
         if (value >= 1 && value <= 100) {
             setNumberOfPoints(value);
-            if (!gameStarted) {
-                setNotification(`Number of points set to ${value}. Click PLAY to start!`);
-                setTimeout(() => setNotification(''), 2000);
-            }
+            // Tự động reset game với số điểm mới
+            const newCircles = generateCircles(value);
+            setCircles(newCircles);
+            setGameCompleted(false);
+            setGameFailed(false);
+            setGameStarted(false);
+            setIsAutoPlaying(false);
+            setNextExpectedNumber(1);
+            resetTimer();
+            setNotification(`Number of points set to ${value}. Click PLAY to start!`);
+            setTimeout(() => setNotification(''), 2000);
         }
     };
 
@@ -178,7 +185,7 @@ const GameBoard = () => {
                         <div className="all-cleared-message">
                             <h2>🎉 ALL CLEARED! 🎉</h2>
                             <p>Completed in {time} seconds!</p>
-                            <button className="play-again-btn" onClick={handleRestart}>
+                            <button className="play-again-btn" onClick={handlePlay}>
                                 Play Again
                             </button>
                         </div>
@@ -209,7 +216,7 @@ const GameBoard = () => {
                                 circle={circle}
                                 onClick={handleCircleClick}
                                 disabled={isAutoPlaying || !gameStarted || gameCompleted || gameFailed}
-                                isNextExpected={circle.id === nextExpectedNumber && gameStarted && !gameCompleted && !gameFailed}d
+                                isNextExpected={circle.id === nextExpectedNumber && gameStarted && !gameCompleted && !gameFailed} d
                             />
                         ))}
                     </div>
