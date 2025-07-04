@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/Circle.css';
 
-const Circle = ({ circle, onClick , disabled = false}) => {
+const Circle = ({ circle, onClick, disabled = false }) => {
     if (!circle.visible) return null;
 
     const handleClick = () => {
@@ -11,12 +11,15 @@ const Circle = ({ circle, onClick , disabled = false}) => {
     };
     return (
         <div
-             className={`circle ${disabled ? 'disabled' : ''}`}
+            className={`circle ${disabled ? 'disabled' : ''}`}
             style={{
+                width: `${circle.size || 50}px`,
+                height: `${circle.size || 50}px`,
                 left: `${circle.x}%`,
                 top: `${circle.y}%`,
                 backgroundColor: circle.color,
-                cursor: disabled ? 'not-allowed' : 'pointer'
+                cursor: disabled ? 'not-allowed' : 'pointer',
+                fontSize: `${Math.max(12, (circle.size || 50) * 0.35)}px`
             }}
             onClick={handleClick}
         >

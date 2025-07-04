@@ -10,6 +10,7 @@ const GameBoard = () => {
     const [numberOfPoints, setNumberOfPoints] = useState(10);
     const [isAutoPlaying, setIsAutoPlaying] = useState(false);
     const { time, startTimer, stopTimer, resetTimer } = useTimer();
+    const [notification, setNotification] = useState('');
 
     useEffect(() => {
         initializeGame();
@@ -25,12 +26,14 @@ const GameBoard = () => {
     }, [circles, stopTimer]);
 
     const initializeGame = () => {
+        setNotification('Generating game...');
         const newCircles = generateCircles();
         setCircles(newCircles);
         setGameCompleted(false);
         setIsAutoPlaying(false);
         resetTimer();
         startTimer();
+        setNotification(`Game started with ${numberOfPoints} points!`);
     };
 
     const handleCircleClick = (id) => {
@@ -49,7 +52,7 @@ const GameBoard = () => {
 
     const handleNumberOfPointsChange = (e) => {
         const value = parseInt(e.target.value);
-        if (value >= 1 && value <= 50) {
+        if (value >= 1 && value <= 100) {
             setNumberOfPoints(value);
         }
     };
@@ -76,6 +79,11 @@ const GameBoard = () => {
 
     return (
         <div className="game-board-container">
+                 {notification && (
+                <div className="notification-bar">
+                    <span className="notification-text">{notification}</span>
+                </div>
+            )}
             <div className="game-controls">
                 <div className="input-control">
                     <label htmlFor="points-input">Number of Points:</label>
@@ -83,12 +91,14 @@ const GameBoard = () => {
                         id="points-input"
                         type="number"
                         min="1"
-                        max="50"
+                        max="100"
                         value={numberOfPoints}
                         onChange={handleNumberOfPointsChange}
                         disabled={isAutoPlaying}
                     />
                 </div>
+
+                 <span className="input-hint">(1-100)</span>
 
                 <div className="action-buttons">
                     <button
@@ -146,6 +156,7 @@ const GameBoard = () => {
                                 key={circle.id}
                                 circle={circle}
                                 onClick={handleCircleClick}
+                                disabled={isAutoPlaying}
                             />
                         ))}
                     </div>
