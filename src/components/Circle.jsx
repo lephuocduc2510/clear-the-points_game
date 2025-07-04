@@ -1,17 +1,17 @@
 import React from 'react';
 import '../styles/Circle.css';
 
-const Circle = ({ circle, onClick, disabled = false, isNextExpected = false }) => {
+const Circle = ({ circle, onClick, disabled = false, isNextExpected = false, isFading = false  }) => {
     if (!circle.visible) return null;
 
     const handleClick = () => {
-        if (!disabled) {
+        if (!disabled && !isFading) {
             onClick(circle.id);
         }
     };
     return (
         <div
-            className={`circle ${disabled ? 'disabled' : ''} ${isNextExpected ? 'next-expected' : ''}`}
+            className={`circle ${disabled ? 'disabled' : ''} ${isNextExpected ? 'next-expected' : ''}  ${isFading ? 'fading' : ''}`}
             style={{
                 width: `${circle.size || 50}px`,
                 height: `${circle.size || 50}px`,

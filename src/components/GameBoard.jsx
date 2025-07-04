@@ -14,6 +14,7 @@ const GameBoard = () => {
     const [gameFailed, setGameFailed] = useState(false);
     const [gameStarted, setGameStarted] = useState(false);
     const [nextExpectedNumber, setNextExpectedNumber] = useState(1);
+    const [fadingCircles, setFadingCircles] = useState(new Set());
     const autoPlayRef = useRef(false);
 
     useEffect(() => {
@@ -68,11 +69,21 @@ const GameBoard = () => {
             return;
         }
 
-        setCircles(prevCircles =>
-            prevCircles.map(circle =>
-                circle.id === id ? { ...circle, visible: false } : circle
-            )
-        );
+        setFadingCircles(prev => new Set([...prev, id]));
+
+        setTimeout(() => {
+            setCircles(prevCircles =>
+                prevCircles.map(circle =>
+                    circle.id === id ? { ...circle, visible: false } : circle
+                )
+            );
+            setFadingCircles(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(id);
+                return newSet;
+            });
+        }, 2500);
+
 
         setNextExpectedNumber(prev => prev + 1);
         setTimeout(() => setNotification(''), 2000);
@@ -108,9 +119,9 @@ const GameBoard = () => {
             return;
         }
 
+        // Bắt đầu auto play
         setIsAutoPlaying(true);
-        setNotification('Auto play started! Watch the correct sequence...');
-
+        setNotification('Auto play started! Click again to stop...');
 
         const visibleCircles = circles.filter(circle => circle.visible)
             .sort((a, b) => a.id - b.id)
@@ -119,6 +130,7 @@ const GameBoard = () => {
         let autoPlayIndex = 0;
 
         const playNext = () => {
+            // Kiểm tra nếu auto play đã bị dừng
             if (!autoPlayRef.current || autoPlayIndex >= visibleCircles.length) {
                 setIsAutoPlaying(false);
                 return;
@@ -126,24 +138,33 @@ const GameBoard = () => {
 
             const circle = visibleCircles[autoPlayIndex];
 
-            setCircles(prevCircles =>
-                prevCircles.map(c =>
-                    c.id === circle.id ? { ...c, visible: false } : c
-                )
-            );
+            // Bắt đầu fade effect
+            setFadingCircles(prev => new Set([...prev, circle.id]));
+
+            // Sau 2.5s thì ẩn hoàn toàn
+            setTimeout(() => {
+                setCircles(prevCircles =>
+                    prevCircles.map(c =>
+                        c.id === circle.id ? { ...c, visible: false } : c
+                    )
+                );
+                setFadingCircles(prev => {
+                    const newSet = new Set(prev);
+                    newSet.delete(circle.id);
+                    return newSet;
+                });
+            }, 2500);
+
             setNextExpectedNumber(circle.id + 1);
-
             autoPlayIndex++;
-
-            if (autoPlayIndex < visibleCircles.length) {
-                setTimeout(playNext, 500);
+            if (autoPlayIndex < visibleCircles.length && autoPlayRef.current) {
+                setTimeout(playNext, 1500);
             } else {
                 setIsAutoPlaying(false);
             }
         };
 
         setTimeout(playNext, 500);
-
         setTimeout(() => {
             if (notification.includes('Auto play started')) {
                 setNotification('');
@@ -251,7 +272,8 @@ const GameBoard = () => {
                                 circle={circle}
                                 onClick={handleCircleClick}
                                 disabled={isAutoPlaying || !gameStarted || gameCompleted || gameFailed}
-                                isNextExpected={circle.id === nextExpectedNumber && gameStarted && !gameCompleted && !gameFailed} d
+                                isNextExpected={circle.id === nextExpectedNumber && gameStarted && !gameCompleted && !gameFailed}
+                                isFading={fadingCircles.has(circle.id)}
                             />
                         ))}
                     </div>
