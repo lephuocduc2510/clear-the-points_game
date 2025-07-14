@@ -7,7 +7,7 @@ function App() {
   return (
     <div className="App">
       <div className="game-container">
-        <h1 className="game-title">HAIBAZO - Clear the Points</h1>
+        <h1 className="game-title">GAME - Clear the Points</h1>
         <HeaderPanel />
         <GameBoard />
       </div>
